@@ -15,7 +15,7 @@ package frc.robot;
 public final class Constants {
 
     
-    public static double length = 0;
+    public static double length = 30;
 
     public static double smallestTurn = .03;
 
@@ -25,9 +25,9 @@ public final class Constants {
     public static double StickError = 0.05;
 
     public static int EncoderTicksInQuadrant = 105; //105 per quad 420 per revolution
-    public static int LargeSwerveRotationError = 5; // change this to help jitter
+    public static int LargeSwerveRotationError = 6; // change this to help jitter
     public static double SmallSwerveRotationError = .5; //Hard stop value
-    public static double FastSwerveRotationSpeed = .6;
+    public static double FastSwerveRotationSpeed = .4;
     public static double SlowSwerveRotationSpeed = .05;
 
     public static double dirMMaxRotationOutput = 1;

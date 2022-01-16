@@ -4,14 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.revrobotics.CANEncoder;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -22,15 +20,16 @@ public class SwerveMotor extends SubsystemBase {
   //creating our motors and encoder
   public CANSparkMax driveMotor; //controls the drive motor
   public CANSparkMax rotationMotor; //controls the rotation of the unit
-  public CANSparkMax encoderMotor; // for encoder
+  public TalonSRX encoderMotor; // for encoder
 
   //creating variables
   
-  private static RelativeEncoder rotationEncoder;
+  public static double rotationEncoder;
 
   public double encoderRemainingValue;
   public double pointSet = 0;
   public double reverse = 0;
+  public double encoderVal = 0;
   
   //We need to find a good way to make this worj with SparkMaxs
   /**sets min and max output
@@ -38,9 +37,6 @@ public class SwerveMotor extends SubsystemBase {
    * @param peak - (double) The peak output for the motors, counts as forward or reverse. In amps
    * @return void
    */
-   private void setMinMaxOutput(int peak){
-     rotationMotor.setSmartCurrentLimit(peak);
-   }
 
    //what is done here with the @param is we are adding a comment to our method so that when you call to it it will say
    //what each parameter will be, you can also say @return ("return type") to say which return type it will be
@@ -55,23 +51,24 @@ public class SwerveMotor extends SubsystemBase {
     //when calling swerve motor we put in parameters which will assign these motors and encoders numbers and ports
     rotationMotor = new CANSparkMax(rotate, MotorType.kBrushless);
     driveMotor = new CANSparkMax(drive, MotorType.kBrushless);
-    encoderMotor = new CANSparkMax(encoder, MotorType.kBrushed);
+    encoderMotor = new TalonSRX(3);
 
-    rotationEncoder = encoderMotor.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 4069);
+    rotationEncoder = encoderMotor.getSelectedSensorPosition();
     //this is where I would use SetMinMaxOutput
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    rotationEncoder = encoderMotor.getSelectedSensorPosition();
   }
 
   //gets the value of an encoder from 0 to 420, we transfer negetive numbers to their positive counterpart
   public double currentEncoderCount(){
-    if(rotationEncoder.getPosition() >= 0){
-      return rotationEncoder.getPosition();
+    if(rotationEncoder >= 0){
+      return rotationEncoder;
     }else{
-      return rotationEncoder.getPosition() + 420;
+      return rotationEncoder + 420;
     }
   }
 
@@ -102,15 +99,15 @@ public class SwerveMotor extends SubsystemBase {
     double flip = 0;
     double currentposition = currentEncoderCount();
     double desiredTarget = target;
-    encoderRemainingValue = desiredTarget - (currentposition+=flip);
+    encoderRemainingValue = desiredTarget - (currentposition);
     double directionMultiplier = 0;
 
     
-    if(encoderRemainingValue>420){
-      encoderRemainingValue -= 420;
-    }else if(encoderRemainingValue<-420){
-      encoderRemainingValue += 420;
-    }
+    // if(encoderRemainingValue>420){
+    //   encoderRemainingValue -= 420;
+    // }else if(encoderRemainingValue<-420){
+    //   encoderRemainingValue += 420;
+    // }
 
     //preliminarily checking to see if it is at the value
     if((encoderRemainingValue != 0) || (encoderRemainingValue - 420 != 0) || (encoderRemainingValue +420 != 0)){
@@ -150,20 +147,18 @@ public class SwerveMotor extends SubsystemBase {
 
   //sets the encoder to zero
   public void zeroEncoder(){
-    rotationEncoder.setPosition(0);
+    encoderMotor.setSelectedSensorPosition(0);
   }
 
   //gets the encoder value but keeps it on a range from -420 to 420
-  public double encoderValue(){
-    double encoder = rotationEncoder.getPosition();
+  public void encoderValue(){
+    double encoder = rotationEncoder;
 
     if(encoder>420){
-      encoder -= 420;
+      encoderMotor.setSelectedSensorPosition(rotationEncoder-=420);
     }else if(encoder<-420){
-      encoder += 420;
+      encoderMotor.setSelectedSensorPosition(rotationEncoder+=420);
     }
-
-    return encoder;
   }
 
   //points the swerve to zero
@@ -183,7 +178,7 @@ public class SwerveMotor extends SubsystemBase {
       revamp = (speed);
     }
 
-    driveMotor.set(revamp);
+    driveMotor.set(speed);
 
     if(angle<0){
       /**I don't understand why I did this, *REWORK*
