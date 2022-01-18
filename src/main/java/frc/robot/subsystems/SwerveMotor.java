@@ -4,10 +4,9 @@
 
 package frc.robot.subsystems;
 
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +19,7 @@ public class SwerveMotor extends SubsystemBase {
   //creating our motors and encoder
   public CANSparkMax driveMotor; //controls the drive motor
   public CANSparkMax rotationMotor; //controls the rotation of the unit
-  public TalonSRX encoderMotor; // for encoder
+  public static TalonSRX encoderMotor; // for encoder
 
   //creating variables
   
@@ -53,14 +52,13 @@ public class SwerveMotor extends SubsystemBase {
     driveMotor = new CANSparkMax(drive, MotorType.kBrushless);
     encoderMotor = new TalonSRX(3);
 
-    rotationEncoder = encoderMotor.getSelectedSensorPosition();
+    rotationEncoder = (encoderMotor.getSelectedSensorPosition()/4096)*420;
     //this is where I would use SetMinMaxOutput
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    rotationEncoder = encoderMotor.getSelectedSensorPosition();
   }
 
   //gets the value of an encoder from 0 to 420, we transfer negetive numbers to their positive counterpart
@@ -103,11 +101,11 @@ public class SwerveMotor extends SubsystemBase {
     double directionMultiplier = 0;
 
     
-    // if(encoderRemainingValue>420){
-    //   encoderRemainingValue -= 420;
-    // }else if(encoderRemainingValue<-420){
-    //   encoderRemainingValue += 420;
-    // }
+    if(encoderRemainingValue>420){
+      encoderRemainingValue -= 420;
+    }else if(encoderRemainingValue<-420){
+      encoderRemainingValue += 420;
+    }
 
     //preliminarily checking to see if it is at the value
     if((encoderRemainingValue != 0) || (encoderRemainingValue - 420 != 0) || (encoderRemainingValue +420 != 0)){
@@ -125,13 +123,13 @@ public class SwerveMotor extends SubsystemBase {
         directionMultiplier = 1;
       }
 
-      if(Math.abs(encoderRemainingValue)>105){
-        if(flip > 0){
-          flip-=210;
-        }else{
-          flip+=210;
-        }
-      }
+      // if(Math.abs(encoderRemainingValue)>105){
+      //   if(flip > 0){
+      //     flip-=210;
+      //   }else{
+      //     flip+=210;
+      //   }
+      // }
 
       //goes towards the point, if it is outside the large error it goes fast, if it is
       //in that range it goes at the slow speed untill smaller than the small error
@@ -147,7 +145,7 @@ public class SwerveMotor extends SubsystemBase {
 
   //sets the encoder to zero
   public void zeroEncoder(){
-    encoderMotor.setSelectedSensorPosition(0);
+    //encoderMotor.setSelectedSensorPosition(0);
   }
 
   //gets the encoder value but keeps it on a range from -420 to 420
@@ -155,9 +153,9 @@ public class SwerveMotor extends SubsystemBase {
     double encoder = rotationEncoder;
 
     if(encoder>420){
-      encoderMotor.setSelectedSensorPosition(rotationEncoder-=420);
+      encoderMotor.setSelectedSensorPosition(rotationEncoder-420);
     }else if(encoder<-420){
-      encoderMotor.setSelectedSensorPosition(rotationEncoder+=420);
+      encoderMotor.setSelectedSensorPosition(rotationEncoder+420);
     }
   }
 

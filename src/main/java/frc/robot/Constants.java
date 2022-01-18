@@ -27,8 +27,8 @@ public final class Constants {
     public static int EncoderTicksInQuadrant = 105; //105 per quad 420 per revolution
     public static int LargeSwerveRotationError = 6; // change this to help jitter
     public static double SmallSwerveRotationError = .5; //Hard stop value
-    public static double FastSwerveRotationSpeed = .4;
-    public static double SlowSwerveRotationSpeed = .05;
+    public static double FastSwerveRotationSpeed = .3; //.4
+    public static double SlowSwerveRotationSpeed = .05;  //.05
 
     public static double dirMMaxRotationOutput = 1;
     public static double dirMMinRotationOutput = -1;

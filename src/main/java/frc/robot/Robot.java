@@ -53,7 +53,11 @@ public class Robot extends TimedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition()/4069)*420);
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -84,8 +88,10 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("encoder value", SwerveMotor.rotationEncoder);
-  }
+    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition()/4069)*420);
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+   }
 
   @Override
   public void testInit() {

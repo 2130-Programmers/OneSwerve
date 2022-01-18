@@ -12,15 +12,9 @@ public class DriveTrain extends SubsystemBase {
 
   //defining swerve units as our SwerveMotor class
   public SwerveMotor motorFL;
-  public SwerveMotor motorFR;
-  public SwerveMotor motorRL;
-  public SwerveMotor motorRR;
 
   //creating a variable which will be our angle
   public double FLAngle = 0;
-  public double FRAngle = 0;
-  public double RLAngle = 0;
-  public double RRAngle = 0;
 
   //for the side length of the robot
   //it is undefined in constants rn
