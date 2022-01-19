@@ -29,6 +29,7 @@ public class SwerveMotor extends SubsystemBase {
   public double pointSet = 0;
   public double reverse = 0;
   public double encoderVal = 0;
+  public double ticksInRotation = Constants.EncoderTicksInQuadrant;
   
   //We need to find a good way to make this worj with SparkMaxs
   /**sets min and max output
@@ -50,9 +51,9 @@ public class SwerveMotor extends SubsystemBase {
     //when calling swerve motor we put in parameters which will assign these motors and encoders numbers and ports
     rotationMotor = new CANSparkMax(rotate, MotorType.kBrushless);
     driveMotor = new CANSparkMax(drive, MotorType.kBrushless);
-    encoderMotor = new TalonSRX(3);
+    encoderMotor = new TalonSRX(encoder);
 
-    rotationEncoder = (encoderMotor.getSelectedSensorPosition()/4096)*420;
+    rotationEncoder = (encoderMotor.getSelectedSensorPosition());
     //this is where I would use SetMinMaxOutput
   }
 
@@ -62,12 +63,10 @@ public class SwerveMotor extends SubsystemBase {
   }
 
   //gets the value of an encoder from 0 to 420, we transfer negetive numbers to their positive counterpart
-  public double currentEncoderCount(){
-    if(rotationEncoder >= 0){
-      return rotationEncoder;
-    }else{
-      return rotationEncoder + 420;
-    }
+  public double currentEncoderCount()
+  {
+    double functreturn = rotationEncoder%ticksInRotation;
+    return functreturn < 0 ? functreturn + ticksInRotation : functreturn;
   }
 
   /**sets the speed for the rotation motor
@@ -75,12 +74,14 @@ public class SwerveMotor extends SubsystemBase {
    * @param speed - (double) the desired power in percent [-1,1]
    * @return (void)
    */
-  private void moveMotor(double speed){
+  private void moveMotor(double speed)
+  {
     rotationMotor.set(speed);
   }
 
   //stops the rotation motor
-  private void stopMotors(){
+  private void stopMotors()
+  {
     rotationMotor.set(0);
   }
 
@@ -92,7 +93,8 @@ public class SwerveMotor extends SubsystemBase {
    * 
    * @return (void)
    */
-  public void pointToTarget(double target){
+  public void pointToTarget(double target)
+  {
     //some local variables to use in calculations
     double flip = 0;
     double currentposition = currentEncoderCount();
@@ -101,25 +103,36 @@ public class SwerveMotor extends SubsystemBase {
     double directionMultiplier = 0;
 
     
-    if(encoderRemainingValue>420){
-      encoderRemainingValue -= 420;
-    }else if(encoderRemainingValue<-420){
-      encoderRemainingValue += 420;
+    if(encoderRemainingValue>ticksInRotation)
+    {
+      encoderRemainingValue -= ticksInRotation;
+    }
+    else if(encoderRemainingValue<-ticksInRotation)
+    {
+      encoderRemainingValue += ticksInRotation;
     }
 
     //preliminarily checking to see if it is at the value
-    if((encoderRemainingValue != 0) || (encoderRemainingValue - 420 != 0) || (encoderRemainingValue +420 != 0)){
+    if((encoderRemainingValue%ticksInRotation != 0) || (-encoderRemainingValue%ticksInRotation != 0))
+    {
 
       //checks to see the direction needed to go, basically the formula a/|a|
       // if we need to go to a positive direction a/|a| = 1
       // if we need to go negetive -a/|-a| = -1
-      if(encoderRemainingValue>210){
-        directionMultiplier = Math.round((encoderRemainingValue-420)/Math.abs(encoderRemainingValue-420));
-      }else if(encoderRemainingValue<210){
-        directionMultiplier = Math.round((encoderRemainingValue+420)/Math.abs(encoderRemainingValue+420));
-      }else if(encoderRemainingValue < 210 && encoderRemainingValue > -210 && encoderRemainingValue != 0){
+      if(encoderRemainingValue>210)
+      {
+        directionMultiplier = Math.round((encoderRemainingValue-ticksInRotation)/Math.abs(encoderRemainingValue-ticksInRotation));
+      }
+      else if(encoderRemainingValue<210)
+      {
+        directionMultiplier = Math.round((encoderRemainingValue+ticksInRotation)/Math.abs(encoderRemainingValue+ticksInRotation));
+      }
+      else if(encoderRemainingValue < 210 && encoderRemainingValue > -210 && encoderRemainingValue != 0)
+      {
         directionMultiplier = Math.round((encoderRemainingValue)/Math.abs(encoderRemainingValue));
-      }else{
+      }
+      else
+      {
         directionMultiplier = 1;
       }
 
@@ -133,52 +146,57 @@ public class SwerveMotor extends SubsystemBase {
 
       //goes towards the point, if it is outside the large error it goes fast, if it is
       //in that range it goes at the slow speed untill smaller than the small error
-      if(Math.abs(encoderRemainingValue) > Constants.LargeSwerveRotationError){
+      if(Math.abs(encoderRemainingValue) > Constants.LargeSwerveRotationError)
+      {
         moveMotor(Constants.FastSwerveRotationSpeed*-directionMultiplier);
-      }else if(Math.abs(encoderRemainingValue) > Constants.SmallSwerveRotationError){
+      }
+      else if(Math.abs(encoderRemainingValue) > Constants.SmallSwerveRotationError)
+      {
         moveMotor(Constants.SlowSwerveRotationSpeed*-directionMultiplier);
-      }else{
+      }
+      else
+      {
         stopMotors();
       }
     }
   }
 
   //sets the encoder to zero
-  public void zeroEncoder(){
+  public void zeroEncoder()
+  {
     //encoderMotor.setSelectedSensorPosition(0);
   }
 
   //gets the encoder value but keeps it on a range from -420 to 420
-  public void encoderValue(){
+  public void encoderValue()
+  {
     double encoder = rotationEncoder;
-
-    if(encoder>420){
-      encoderMotor.setSelectedSensorPosition(rotationEncoder-420);
-    }else if(encoder<-420){
-      encoderMotor.setSelectedSensorPosition(rotationEncoder+420);
+    if(420 < Math.abs(encoder))
+    {
+      encoderMotor.setSelectedSensorPosition(rotationEncoder%ticksInRotation);
     }
   }
 
   //points the swerve to zero
-  public void goToZero(){
+  public void goToZero()
+  {
     pointToTarget(0);
   }
 
 
   //function to make the unite move
-  public void drive(double speed, double angle){
-    double revamp = 0;
-    encoderValue();
+  public void drive(double speed, double angle)
+  {
+    double revamp = speed;
 
     if(1 < Math.abs(speed)){
       revamp = (speed/Math.abs(speed));
-    }else{
-      revamp = (speed);
     }
 
-    driveMotor.set(speed);
+    driveMotor.set(revamp);
 
-    if(angle<0){
+    if(angle<0)
+    {
       /**I don't understand why I did this, *REWORK*
        * |-7+1|+1 = 7 but it would be the same without the +1's
        */
@@ -190,7 +208,8 @@ public class SwerveMotor extends SubsystemBase {
     pointToTarget(pointSet);
   }
 
-  public void staticAngle(double speed, double angle){
+  public void staticAngle(double speed, double angle)
+  {
     pointToTarget(angle);
     driveMotor.set(speed);
   }

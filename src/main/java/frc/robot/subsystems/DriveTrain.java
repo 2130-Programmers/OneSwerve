@@ -24,7 +24,8 @@ public class DriveTrain extends SubsystemBase {
 
 
   //defining each swerve unit with the custom swerve class we made
-  public DriveTrain() {
+  public DriveTrain() 
+  {
     //we need to change the parameters, based off of Swolenoid
     motorFL = new SwerveMotor(1, 2, 3);
 
@@ -41,7 +42,8 @@ public class DriveTrain extends SubsystemBase {
   }
 
   //for calculating which way the swerve units should point and how much power should be given
-  public void moveSwerveAxis(double leftX, double leftY, double rightX){
+  public void moveSwerveAxis(double leftX, double leftY, double rightX)
+  {
     double swivel = rightX * (l / r);
     // a b c and d are the sides of the robot, wheels are made from the combination of sides
     /**
@@ -59,7 +61,8 @@ public class DriveTrain extends SubsystemBase {
     double FLDesiredSpeed = -Math.sqrt((b*b)+(c*c));
 
     //notorious problem area, rework if possible, atan will return zero and not tell you
-    if(leftX == 0 && leftY == 0 && swivel == 0){
+    if(leftX == 0 && leftY == 0 && swivel == 0)
+    {
       //tries to avoid divide by zero error
       FLAngle = 0;
     }else{
@@ -71,14 +74,16 @@ public class DriveTrain extends SubsystemBase {
   }
 
   //reaching into each motors "SwerveMotor" class to zero encoders
-  public void zeroAllEncoders(){
+  public void zeroAllEncoders()
+  {
     motorFL.zeroEncoder();
   }
 
 
   //Pressing Alt+left Click will duplicate your curser 
   //so you can type in multiple spots at once
-  public void findZero(){
+  public void findZero()
+  {
     motorFL.goToZero();
   }
 
