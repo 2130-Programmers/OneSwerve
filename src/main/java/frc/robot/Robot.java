@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.SwerveMotor;
 
 /**
@@ -41,6 +42,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    
+
+
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -55,10 +59,17 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition()/4069)*420);
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
-  }
+    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition() % 4096));
 
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+    SmartDashboard.putNumber("encoder remaining value", SwerveMotor.SmartDashboardReader());
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+    //SmartDashboard.putNumber("Encoder Remaining Value", SwerveMotor.encoderRemainingValue);
+    SmartDashboard.putNumber("Left Joystick X", RobotContainer.driverJoy.getRawAxis(0));
+    SmartDashboard.putNumber("Left Joystick Y", RobotContainer.driverJoy.getRawAxis(1));
+    SmartDashboard.putNumber("Right Joystick X", RobotContainer.driverJoy.getRawAxis(4));
+    
+  }
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
@@ -88,9 +99,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition()/4069)*420);
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+   
    }
 
   @Override

@@ -6,9 +6,20 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 public class DriveTrain extends SubsystemBase {
   /** Creates a new DriveTrain. */
+/**
+  public double driverJoyLeftX;
+  private double driverJoyLeftY;
+  private double driverJoyRightX;
+
+  private double leftXOutput;
+  private double leftYOutput;
+  private double rightXOutput;
+*/
 
   //defining swerve units as our SwerveMotor class
   public SwerveMotor motorFL;
@@ -26,6 +37,30 @@ public class DriveTrain extends SubsystemBase {
   //defining each swerve unit with the custom swerve class we made
   public DriveTrain() 
   {
+    //driverJoyLeftX = RobotContainer.driverJoy.getRawAxis(0);
+    //driverJoyLeftY = RobotContainer.driverJoy.getRawAxis(1);
+    //driverJoyRightX = RobotContainer.driverJoy.getRawAxis(4);
+/**
+    if(driverJoyLeftX < .05){
+      leftXOutput = 0;
+    } else{
+      leftXOutput = RobotContainer.driverJoy.getRawAxis(0);
+    }
+
+    if(driverJoyLeftY < .05){
+      leftYOutput = 0;
+    } else{
+      leftYOutput = RobotContainer.driverJoy.getRawAxis(0);
+    }
+
+    if(driverJoyRightX < .05){
+      rightXOutput = 0;
+    } else{
+      rightXOutput = RobotContainer.driverJoy.getRawAxis(0);
+    }
+*/
+
+  
     //we need to change the parameters, based off of Swolenoid
     motorFL = new SwerveMotor(1, 2, 3);
 
@@ -52,9 +87,10 @@ public class DriveTrain extends SubsystemBase {
      * swerve unit is unit BC, because in a triangle made from the robots frames, the two sides are b and c.
      * This part is simply saying where each side wants to go by themselves.
      */
+    //double b = leftX+swivel;
+    //double c = rightX-swivel;
     double b = leftX+swivel;
-    double c = rightX-swivel;
-
+    double c = leftY-swivel;
     //calculates the speed based on *vector math*
     /**
      */
@@ -67,7 +103,7 @@ public class DriveTrain extends SubsystemBase {
       FLAngle = 0;
     }else{
       //calculates the angle based of where each side wants to go
-      FLAngle = Math.atan2(b, c)/Math.PI;
+      FLAngle = Math.atan2(RobotContainer.driverJoy.getRawAxis(0), RobotContainer.driverJoy.getRawAxis(1))/Math.PI;
     }
 
     motorFL.drive(FLDesiredSpeed, FLAngle);

@@ -24,12 +24,15 @@ public final class Constants {
 
     public static double StickError = 0.05;
 
-    public static int EncoderTicksInQuadrant = 105; //105 per quad 420 per revolution
-    public static int EncoderTicksInRevolution = 420;
-    public static int LargeSwerveRotationError = 6; // change this to help jitter
-    public static double SmallSwerveRotationError = .5; //Hard stop value
-    public static double FastSwerveRotationSpeed = .3; //.4
-    public static double SlowSwerveRotationSpeed = .05;  //.05
+    public static int EncoderTicksInQuadrant = 1024; //105 per quad 420 per revolution
+    public static int EncoderTicksInRevolution = 4096;
+    public static int EncoderTicksInHalf = 2048;
+
+
+    public static int LargeSwerveRotationError = 200; // change this to help jitter
+    public static double SmallSwerveRotationError = 50; //Hard stop value
+    public static double FastSwerveRotationSpeed = .06; //.4
+    public static double SlowSwerveRotationSpeed = .03;  //.05
 
     public static double dirMMaxRotationOutput = 1;
     public static double dirMMinRotationOutput = -1;
