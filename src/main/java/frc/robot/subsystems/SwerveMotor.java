@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -17,10 +19,15 @@ public class SwerveMotor extends SubsystemBase {
 
 
   //creating our motors and encoder
-  public CANSparkMax driveMotor; //controls the drive motor
-  public CANSparkMax rotationMotor; //controls the rotation of the unit
+  public TalonFX driveMotor; //controls the drive motor
+  public TalonFX rotationMotor; //controls the rotation of the unit
   public static TalonSRX encoderMotor; // for encoder
   public static double sDencoderRemainingValue;
+  public static double sdPointSet;
+  public static double sdCurrentEncoderCount;
+  public double encoderPosition;
+
+  public static boolean testBoolean;
 
   //creating variables
   
@@ -33,6 +40,7 @@ public class SwerveMotor extends SubsystemBase {
 
   public double ticksInRotation = Constants.EncoderTicksInRevolution; //changed from quadrent to revolution
   public double ticksInHalf = Constants.EncoderTicksInHalf;
+  public double ticksInThreeQuarters = Constants.EncoderticksInThreeQuarters;
   
   //We need to find a good way to make this worj with SparkMaxs
   /**sets min and max output
@@ -52,11 +60,13 @@ public class SwerveMotor extends SubsystemBase {
     */
   public SwerveMotor(int rotate, int drive, int encoder) {
     //when calling swerve motor we put in parameters which will assign these motors and encoders numbers and ports
-    rotationMotor = new CANSparkMax(rotate, MotorType.kBrushless);
-    driveMotor = new CANSparkMax(drive, MotorType.kBrushless);
+    rotationMotor = new TalonFX(rotate);
+    driveMotor = new TalonFX(drive);
     encoderMotor = new TalonSRX(3);
+    testBoolean = false;
+    encoderPosition = encoderMotor.getSelectedSensorPosition() % ticksInRotation;
 
-    rotationEncoder = (encoderMotor.getSelectedSensorPosition());
+    //rotationEncoder = (encoderMotor.getSelectedSensorPosition());
     //this is where I would use SetMinMaxOutput
   }
 
@@ -68,9 +78,8 @@ public class SwerveMotor extends SubsystemBase {
   //gets the value of an encoder from 0 to 420, we transfer negetive numbers to their positive counterpart
   public double currentEncoderCount()
   {
-    double functreturn = (SwerveMotor.encoderMotor.getSelectedSensorPosition() % ticksInRotation);// getpostion / 4096 * 420 % 420 + 420 
-    //double functreturn = rotationEncoder % ticksInRotation;
-    return functreturn < 0 ? functreturn + ticksInRotation : functreturn;
+    double functreturn = encoderPosition;
+    return functreturn;
   }
 
   /**sets the speed for the rotation motor
@@ -80,13 +89,15 @@ public class SwerveMotor extends SubsystemBase {
    */
   private void moveMotor(double speed)
   {
-    rotationMotor.set(speed);
+    testBoolean = true;
+    rotationMotor.set(ControlMode.PercentOutput, speed);
+    //encoderMotor.setSelectedSensorPosition(0);
   }
 
   //stops the rotation motor
   private void stopMotors()
   {
-    rotationMotor.set(0);
+    rotationMotor.set(ControlMode.PercentOutput, 0);
   }
 
   /**
@@ -99,15 +110,17 @@ public class SwerveMotor extends SubsystemBase {
    */
   public void pointToTarget(double target)
   {
-    //some local variables to use in calculations
+
     double flip = 0;
-    double currentposition = currentEncoderCount();
+    double currentposition = Math.abs(encoderMotor.getSelectedSensorPosition() % 4096);
+
     double desiredTarget = target;
-    encoderRemainingValue = desiredTarget - (currentposition);
-    sDencoderRemainingValue = encoderRemainingValue;
+
+    encoderRemainingValue = desiredTarget - currentposition;
+  
     double directionMultiplier = 0;
 
-    
+    /**
     if(encoderRemainingValue>ticksInRotation)
     {
       encoderRemainingValue -= ticksInRotation;
@@ -116,14 +129,15 @@ public class SwerveMotor extends SubsystemBase {
     {
       encoderRemainingValue += ticksInRotation;
     }
-
+    */
     //preliminarily checking to see if it is at the value
-    if((encoderRemainingValue%ticksInRotation != 0) || (-encoderRemainingValue%ticksInRotation != 0))
+    if((encoderRemainingValue % ticksInRotation != 0) || (-encoderRemainingValue % ticksInRotation != 0))
     {
 
       //checks to see the direction needed to go, basically the formula a/|a|
       // if we need to go to a positive direction a/|a| = 1
       // if we need to go negetive -a/|-a| = -1
+      /** 
       if(encoderRemainingValue > ticksInHalf)
       {
         directionMultiplier = Math.round((encoderRemainingValue-ticksInRotation)/Math.abs(encoderRemainingValue-ticksInRotation));
@@ -140,7 +154,30 @@ public class SwerveMotor extends SubsystemBase {
       {
         directionMultiplier = 1;
       }
+      */
 
+      if(encoderRemainingValue > ticksInThreeQuarters)
+{
+  directionMultiplier = Math.round(encoderRemainingValue) / Math.abs(encoderRemainingValue) * -1;
+}
+else if(encoderRemainingValue < ticksInHalf && encoderRemainingValue > -ticksInHalf && encoderRemainingValue != 0)
+{
+  directionMultiplier = Math.round((encoderRemainingValue)/Math.abs(encoderRemainingValue));
+ }
+ else if(encoderRemainingValue > ticksInHalf)
+{
+  directionMultiplier = Math.round((encoderRemainingValue-ticksInRotation)/Math.abs(encoderRemainingValue-ticksInRotation));
+}
+else if(encoderRemainingValue < ticksInHalf)
+{
+  directionMultiplier = Math.round((encoderRemainingValue+ticksInRotation)/Math.abs(encoderRemainingValue+ticksInRotation));
+}
+else
+{
+  directionMultiplier = 1;
+}
+
+sDencoderRemainingValue = encoderRemainingValue;
       // if(Math.abs(encoderRemainingValue)>105){
       //   if(flip > 0){
       //     flip-=210;
@@ -151,17 +188,18 @@ public class SwerveMotor extends SubsystemBase {
 
       //goes towards the point, if it is outside the large error it goes fast, if it is
       //in that range it goes at the slow speed untill smaller than the small error
-      if(Math.abs(encoderRemainingValue - ticksInHalf) > Constants.LargeSwerveRotationError)
+      if(Math.abs(encoderRemainingValue) > Constants.LargeSwerveRotationError)
       {
         moveMotor(Constants.FastSwerveRotationSpeed * -directionMultiplier);
       }
-      else if(Math.abs(encoderRemainingValue - ticksInHalf) > Constants.SmallSwerveRotationError)
+      else if(Math.abs(encoderRemainingValue) > Constants.SmallSwerveRotationError)
       {
         moveMotor(Constants.SlowSwerveRotationSpeed * -directionMultiplier);
       }
       else
       {
         stopMotors();
+        testBoolean = false;
       }
     }
   }
@@ -192,28 +230,47 @@ public class SwerveMotor extends SubsystemBase {
   //function to make the unite move
   public void drive(double speed, double angle)
   {
+    sdPointSet = pointSet;
     double revamp = speed;
-
     if(1 < Math.abs(speed)){
       revamp = (speed/Math.abs(speed));
     }
 
-    driveMotor.set(revamp);
+    driveMotor.set(ControlMode.PercentOutput, revamp);
 
       /**I don't understand why I did this, *REWORK*
        * |-7+1|+1 = 7 but it would be the same without the +1's
        */
-      pointSet = (Math.abs(1+angle)+1) * ticksInHalf;
 
+      //pointSet = (Math.abs(1+angle)+1) * ticksInHalf;
+      if (angle < 0)
+      {
+        pointSet = ticksInRotation + (angle * ticksInHalf);
+      } else if (angle > 0)
+      {
+        pointSet = angle * ticksInHalf;
+      } else
+      {
+        pointSet = 0;
+      }
     pointToTarget(pointSet);
   }
+
+
+
 
   public void staticAngle(double speed, double angle)
   {
     pointToTarget(angle);
-    driveMotor.set(speed);
+    driveMotor.set(ControlMode.PercentOutput, speed);
   }
-  public static double SmartDashboardReader() {
+  public static double SmartDashboardReaderEncoder() {
     return sDencoderRemainingValue;
   }
+  public static double SmartDashboardReaderPointSet() {
+    return sdPointSet;
+  }
+    public static double SmartDashboardReaderEncoderPos() {
+    return sdCurrentEncoderCount;
+    }
 }

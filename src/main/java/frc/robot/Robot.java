@@ -42,7 +42,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    
+    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("edited encoder value", Math.abs(SwerveMotor.encoderMotor.getSelectedSensorPosition() % 4096));
+
+    SmartDashboard.putBoolean("test Boolean", SwerveMotor.testBoolean);
+
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+    SmartDashboard.putNumber("encoder remaining value", SwerveMotor.SmartDashboardReaderEncoder());
+    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
+    SmartDashboard.putNumber("pointSet", SwerveMotor.SmartDashboardReaderPointSet());
+    //SmartDashboard.putNumber("Encoder Remaining Value", SwerveMotor.encoderRemainingValue);
+    SmartDashboard.putNumber("Left Joystick X", RobotContainer.driverJoy.getRawAxis(0));
+    SmartDashboard.putNumber("Left Joystick Y", RobotContainer.driverJoy.getRawAxis(1));
+    SmartDashboard.putNumber("Right Joystick X", RobotContainer.driverJoy.getRawAxis(4));
 
 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -58,16 +70,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("edited encoder value", (SwerveMotor.encoderMotor.getSelectedSensorPosition() % 4096));
-
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
-    SmartDashboard.putNumber("encoder remaining value", SwerveMotor.SmartDashboardReader());
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
-    //SmartDashboard.putNumber("Encoder Remaining Value", SwerveMotor.encoderRemainingValue);
-    SmartDashboard.putNumber("Left Joystick X", RobotContainer.driverJoy.getRawAxis(0));
-    SmartDashboard.putNumber("Left Joystick Y", RobotContainer.driverJoy.getRawAxis(1));
-    SmartDashboard.putNumber("Right Joystick X", RobotContainer.driverJoy.getRawAxis(4));
     
   }
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -99,7 +101,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-   
+    
+    
    }
 
   @Override

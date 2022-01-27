@@ -103,7 +103,7 @@ public class DriveTrain extends SubsystemBase {
       FLAngle = 0;
     }else{
       //calculates the angle based of where each side wants to go
-      FLAngle = Math.atan2(RobotContainer.driverJoy.getRawAxis(0), RobotContainer.driverJoy.getRawAxis(1))/Math.PI;
+      FLAngle = Math.atan2(b, c)/Math.PI;
     }
 
     motorFL.drive(FLDesiredSpeed, FLAngle);
