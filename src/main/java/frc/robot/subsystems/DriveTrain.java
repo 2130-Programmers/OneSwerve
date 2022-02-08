@@ -6,8 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.RobotContainer;
 
 public class DriveTrain extends SubsystemBase {
   /** Creates a new DriveTrain. */
@@ -23,10 +21,15 @@ public class DriveTrain extends SubsystemBase {
 
   //defining swerve units as our SwerveMotor class
   public SwerveMotor motorFL;
+  public SwerveMotor motorFR;
+  public SwerveMotor motorRL;
+  public SwerveMotor motorRR;
 
   //creating a variable which will be our angle
   public double FLAngle = 0;
-
+  public double FRAngle = 0;
+  public double RLAngle = 0;
+  public double RRAngle = 0;
   //for the side length of the robot
   //it is undefined in constants rn
   public double l;
@@ -37,32 +40,12 @@ public class DriveTrain extends SubsystemBase {
   //defining each swerve unit with the custom swerve class we made
   public DriveTrain() 
   {
-    //driverJoyLeftX = RobotContainer.driverJoy.getRawAxis(0);
-    //driverJoyLeftY = RobotContainer.driverJoy.getRawAxis(1);
-    //driverJoyRightX = RobotContainer.driverJoy.getRawAxis(4);
-/**
-    if(driverJoyLeftX < .05){
-      leftXOutput = 0;
-    } else{
-      leftXOutput = RobotContainer.driverJoy.getRawAxis(0);
-    }
-
-    if(driverJoyLeftY < .05){
-      leftYOutput = 0;
-    } else{
-      leftYOutput = RobotContainer.driverJoy.getRawAxis(0);
-    }
-
-    if(driverJoyRightX < .05){
-      rightXOutput = 0;
-    } else{
-      rightXOutput = RobotContainer.driverJoy.getRawAxis(0);
-    }
-*/
-
   
     //we need to change the parameters, based off of Swolenoid
-    motorFL = new SwerveMotor(1, 2, 3);
+    motorFL = new SwerveMotor(1, 2, 9);
+    motorFR = new SwerveMotor(3, 4, 10);
+    motorRL = new SwerveMotor(5, 6, 11);
+    motorRR = new SwerveMotor(7, 8, 12);
 
     //defining l by using constants, constants are good for these types of variables.
     //You can find constants in the editor right below the subsystems
@@ -79,7 +62,7 @@ public class DriveTrain extends SubsystemBase {
   //for calculating which way the swerve units should point and how much power should be given
   public void moveSwerveAxis(double leftX, double leftY, double rightX)
   {
-    double swivel = rightX * (l / r);
+    double swivel = -rightX * (l / r);
     // a b c and d are the sides of the robot, wheels are made from the combination of sides
     /**
      * this is the beginning of the vector based math, and in short we are calculating where each side wants to be
@@ -87,26 +70,41 @@ public class DriveTrain extends SubsystemBase {
      * swerve unit is unit BC, because in a triangle made from the robots frames, the two sides are b and c.
      * This part is simply saying where each side wants to go by themselves.
      */
-    //double b = leftX+swivel;
-    //double c = rightX-swivel;
+    double a = leftX-swivel;
     double b = leftX+swivel;
     double c = leftY-swivel;
+    double d = leftY+swivel;
     //calculates the speed based on *vector math*
     /**
      */
     double FLDesiredSpeed = -Math.sqrt((b*b)+(c*c));
+    double FRDesiredSpeed = -Math.sqrt((b*b)+(d*d));
+    double RLDesiredSpeed = -Math.sqrt((a*a)+(c*c));
+    double RRDesiredSpeed = -Math.sqrt((a*a)+(d*d));
+
 
     //notorious problem area, rework if possible, atan will return zero and not tell you
     if(leftX == 0 && leftY == 0 && swivel == 0)
     {
       //tries to avoid divide by zero error
       FLAngle = 0;
+      FRAngle = 0;
+      RLAngle = 0;
+      RRAngle = 0;
+
     }else{
       //calculates the angle based of where each side wants to go
       FLAngle = Math.atan2(b, c)/Math.PI;
+      FRAngle = Math.atan2(b, d)/Math.PI;
+      RLAngle = Math.atan2(a, c)/Math.PI;
+      RRAngle = Math.atan2(a, d)/Math.PI;
+
     }
 
     motorFL.drive(FLDesiredSpeed, FLAngle);
+    motorFR.drive(FRDesiredSpeed, FRAngle);
+    motorRL.drive(RLDesiredSpeed, RLAngle);
+    motorRR.drive(RRDesiredSpeed, RRAngle);
   }
 
   //reaching into each motors "SwerveMotor" class to zero encoders

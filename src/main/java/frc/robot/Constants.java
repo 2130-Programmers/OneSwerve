@@ -30,11 +30,10 @@ public final class Constants {
     public static int EncoderTicksInHalf = 2048;
     public static int EncoderticksInThreeQuarters = 3072;
 
-
-    public static int LargeSwerveRotationError = 500; // change this to help jitter
-    public static double SmallSwerveRotationError = 30; //Hard stop value
+    public static double LargeSwerveRotationError = 40; // change this to help jitter
+    public static double SmallSwerveRotationError = 40; //Hard stop value
     public static double FastSwerveRotationSpeed = .2; //.4
-    public static double SlowSwerveRotationSpeed = .05;  //.05
+    public static double SlowSwerveRotationSpeed = .1;  //.05
 
     public static double dirMMaxRotationOutput = 1;
     public static double dirMMinRotationOutput = -1;

@@ -25,7 +25,7 @@ public class DriveCommand extends CommandBase {
   @Override
   public void execute() {
     //in previous versions axis 1 and 5 are always inverted
-    driveTrain.moveSwerveAxis(RobotContainer.driverJoy.getRawAxis(0), 
+    driveTrain.moveSwerveAxis(-RobotContainer.driverJoy.getRawAxis(0), 
                 -RobotContainer.driverJoy.getRawAxis(1), 
                 RobotContainer.driverJoy.getRawAxis(4));
   }

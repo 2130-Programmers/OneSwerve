@@ -5,11 +5,11 @@
 package frc.robot.subsystems;
 
 
+import java.security.spec.EncodedKeySpec;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,20 +21,22 @@ public class SwerveMotor extends SubsystemBase {
   //creating our motors and encoder
   public TalonFX driveMotor; //controls the drive motor
   public TalonFX rotationMotor; //controls the rotation of the unit
-  public static TalonSRX encoderMotor; // for encoder
-  public static double sDencoderRemainingValue;
-  public static double sdPointSet;
-  public static double sdCurrentEncoderCount;
-  public double encoderPosition;
+  public TalonSRX encoderMotor; // for encoder
+  public static double sDencoderRemainingValue = 0;
+  public static double sdPointSet = 0;
+  public static double sdPointSetMod = 0;
+  public static double sdCurrentEncoderCount = 0;
+  public double encoderPosition = 0;
+  public double rawEncoderPosition = 0;
+  public double turnPowerRatio = 0;
 
   public static boolean testBoolean;
 
   //creating variables
-  
-  public static double rotationEncoder;
-
-  public double encoderRemainingValue;
+  public static double rotationEncoder = 0;
+  public double encoderRemainingValue = 0;
   public double pointSet = 0;
+  public double pointSetMod = 0;
   public double reverse = 0;
   public double encoderVal = 0;
 
@@ -62,9 +64,10 @@ public class SwerveMotor extends SubsystemBase {
     //when calling swerve motor we put in parameters which will assign these motors and encoders numbers and ports
     rotationMotor = new TalonFX(rotate);
     driveMotor = new TalonFX(drive);
-    encoderMotor = new TalonSRX(3);
+    encoderMotor = new TalonSRX(encoder);
     testBoolean = false;
-    encoderPosition = encoderMotor.getSelectedSensorPosition() % ticksInRotation;
+    
+    //encoderPosition = encoderMotor.getSelectedSensorPosition() % ticksInRotation;
 
     //rotationEncoder = (encoderMotor.getSelectedSensorPosition());
     //this is where I would use SetMinMaxOutput
@@ -110,67 +113,46 @@ public class SwerveMotor extends SubsystemBase {
    */
   public void pointToTarget(double target)
   {
-
-    double flip = 0;
-    double currentposition = Math.abs(encoderMotor.getSelectedSensorPosition() % 4096);
+    rawEncoderPosition = encoderMotor.getSelectedSensorPosition();
+    
+    if (rawEncoderPosition >= 0)
+    {
+      encoderPosition = encoderMotor.getSelectedSensorPosition() % ticksInRotation;
+    }
+      else
+    {
+      encoderPosition = (encoderMotor.getSelectedSensorPosition() % ticksInRotation) + 4096;
+    }
+    //double flip = 0;
+    double currentposition = currentEncoderCount();
 
     double desiredTarget = target;
-
     encoderRemainingValue = desiredTarget - currentposition;
-  
     double directionMultiplier = 0;
 
-    /**
-    if(encoderRemainingValue>ticksInRotation)
-    {
-      encoderRemainingValue -= ticksInRotation;
-    }
-    else if(encoderRemainingValue<-ticksInRotation)
-    {
-      encoderRemainingValue += ticksInRotation;
-    }
-    */
     //preliminarily checking to see if it is at the value
-    if((encoderRemainingValue % ticksInRotation != 0) || (-encoderRemainingValue % ticksInRotation != 0))
+if((encoderRemainingValue % ticksInRotation != 0) || (-encoderRemainingValue % ticksInRotation != 0))
     {
 
       //checks to see the direction needed to go, basically the formula a/|a|
       // if we need to go to a positive direction a/|a| = 1
-      // if we need to go negetive -a/|-a| = -1
-      /** 
-      if(encoderRemainingValue > ticksInHalf)
-      {
-        directionMultiplier = Math.round((encoderRemainingValue-ticksInRotation)/Math.abs(encoderRemainingValue-ticksInRotation));
-      }
-      else if(encoderRemainingValue < ticksInHalf)
-      {
-        directionMultiplier = Math.round((encoderRemainingValue+ticksInRotation)/Math.abs(encoderRemainingValue+ticksInRotation));
-      }
-      else if(encoderRemainingValue < ticksInHalf && encoderRemainingValue > -ticksInHalf && encoderRemainingValue != 0)
-      {
-        directionMultiplier = Math.round((encoderRemainingValue)/Math.abs(encoderRemainingValue));
-      }
-      else
-      {
-        directionMultiplier = 1;
-      }
-      */
+
 
       if(encoderRemainingValue > ticksInThreeQuarters)
 {
-  directionMultiplier = Math.round(encoderRemainingValue) / Math.abs(encoderRemainingValue) * -1;
+  directionMultiplier = Math.round(encoderRemainingValue) / Math.abs(encoderRemainingValue);//-
 }
 else if(encoderRemainingValue < ticksInHalf && encoderRemainingValue > -ticksInHalf && encoderRemainingValue != 0)
 {
-  directionMultiplier = Math.round((encoderRemainingValue)/Math.abs(encoderRemainingValue));
+  directionMultiplier = Math.round((encoderRemainingValue) / Math.abs(encoderRemainingValue)) * -1; //+
  }
  else if(encoderRemainingValue > ticksInHalf)
 {
-  directionMultiplier = Math.round((encoderRemainingValue-ticksInRotation)/Math.abs(encoderRemainingValue-ticksInRotation));
+  directionMultiplier = Math.round((encoderRemainingValue - ticksInRotation) / Math.abs(encoderRemainingValue - ticksInRotation)) * -1;//+
 }
-else if(encoderRemainingValue < ticksInHalf)
+else if(encoderRemainingValue < -ticksInHalf)
 {
-  directionMultiplier = Math.round((encoderRemainingValue+ticksInRotation)/Math.abs(encoderRemainingValue+ticksInRotation));
+  directionMultiplier = Math.round((encoderRemainingValue+ticksInRotation) / Math.abs(encoderRemainingValue+ticksInRotation)) * -1;//+
 }
 else
 {
@@ -188,19 +170,25 @@ sDencoderRemainingValue = encoderRemainingValue;
 
       //goes towards the point, if it is outside the large error it goes fast, if it is
       //in that range it goes at the slow speed untill smaller than the small error
+
+      turnPowerRatio = .000004 * Math.pow(encoderRemainingValue, 2) + .00002 * encoderRemainingValue +.0202;
+
+      if (Math.abs(encoderRemainingValue) > 500) {
+        moveMotor(.3 * -directionMultiplier);
+      }else {
+        moveMotor(turnPowerRatio * .3 * -directionMultiplier);
+      }
+      /*
       if(Math.abs(encoderRemainingValue) > Constants.LargeSwerveRotationError)
       {
-        moveMotor(Constants.FastSwerveRotationSpeed * -directionMultiplier);
-      }
-      else if(Math.abs(encoderRemainingValue) > Constants.SmallSwerveRotationError)
-      {
-        moveMotor(Constants.SlowSwerveRotationSpeed * -directionMultiplier);
+        moveMotor(turnPowerRatio * -directionMultiplier);
       }
       else
       {
         stopMotors();
         testBoolean = false;
       }
+      */
     }
   }
 
@@ -231,12 +219,13 @@ sDencoderRemainingValue = encoderRemainingValue;
   public void drive(double speed, double angle)
   {
     sdPointSet = pointSet;
+    sdPointSetMod = pointSetMod;
     double revamp = speed;
     if(1 < Math.abs(speed)){
       revamp = (speed/Math.abs(speed));
     }
 
-    driveMotor.set(ControlMode.PercentOutput, revamp);
+    driveMotor.set(ControlMode.PercentOutput, revamp * .5);
 
       /**I don't understand why I did this, *REWORK*
        * |-7+1|+1 = 7 but it would be the same without the +1's
@@ -251,26 +240,39 @@ sDencoderRemainingValue = encoderRemainingValue;
         pointSet = angle * ticksInHalf;
       } else
       {
-        pointSet = 0;
+        stopMotors();
+        //pointSet = 0;
       }
+  // POINTSETMOD is not being used, it swaps the polarity of the desired target and makes it count up from the botton isntead of the top
+      pointSetMod = pointSet;
+      pointSetMod -= ticksInHalf;
+
+      if (pointSetMod > 0){
+      } else if(pointSetMod < 0){
+        pointSetMod += ticksInRotation;
+      } else {
+      pointSetMod = 0;
+      }
+
     pointToTarget(pointSet);
   }
-
-
-
 
   public void staticAngle(double speed, double angle)
   {
     pointToTarget(angle);
     driveMotor.set(ControlMode.PercentOutput, speed);
   }
-  public static double SmartDashboardReaderEncoder() {
+  public double SmartDashboardReaderEncoder() {
     return sDencoderRemainingValue;
   }
-  public static double SmartDashboardReaderPointSet() {
+  public double SmartDashboardReaderPointSet() {
     return sdPointSet;
   }
     public static double SmartDashboardReaderEncoderPos() {
     return sdCurrentEncoderCount;
     }
+  public double SmartDashboardReaderPointSetMod() {
+    return sdPointSetMod;
+  }
+  
 }

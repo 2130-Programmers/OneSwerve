@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.SwerveMotor;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -42,20 +40,32 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("encoder value", SwerveMotor.encoderMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("edited encoder value", Math.abs(SwerveMotor.encoderMotor.getSelectedSensorPosition() % 4096));
 
-    SmartDashboard.putBoolean("test Boolean", SwerveMotor.testBoolean);
+    SmartDashboard.putNumber("FL edited encoder value", RobotContainer.driveTrain.motorFL.encoderPosition);
+    SmartDashboard.putNumber("FR edited encoder value", RobotContainer.driveTrain.motorFR.encoderPosition);
+    SmartDashboard.putNumber("RL edited encoder value", RobotContainer.driveTrain.motorRL.encoderPosition);
+    SmartDashboard.putNumber("RR edited encoder value", RobotContainer.driveTrain.motorRR.encoderPosition);
 
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
-    SmartDashboard.putNumber("encoder remaining value", SwerveMotor.SmartDashboardReaderEncoder());
-    SmartDashboard.putNumber("desired angle", RobotContainer.driveTrain.FLAngle);
-    SmartDashboard.putNumber("pointSet", SwerveMotor.SmartDashboardReaderPointSet());
-    //SmartDashboard.putNumber("Encoder Remaining Value", SwerveMotor.encoderRemainingValue);
+    SmartDashboard.putNumber("FL desired angle", RobotContainer.driveTrain.FLAngle);
+    SmartDashboard.putNumber("FR desired angle", RobotContainer.driveTrain.FRAngle);
+    SmartDashboard.putNumber("RL desired angle", RobotContainer.driveTrain.RLAngle);
+    SmartDashboard.putNumber("RR desired angle", RobotContainer.driveTrain.RRAngle);
+
+    SmartDashboard.putNumber("pointSet FL", RobotContainer.driveTrain.motorFL.pointSet);
+    SmartDashboard.putNumber("pointSet FR", RobotContainer.driveTrain.motorFR.pointSet);
+    SmartDashboard.putNumber("pointSet RL", RobotContainer.driveTrain.motorRL.pointSet);
+    SmartDashboard.putNumber("pointSet RR", RobotContainer.driveTrain.motorRR.pointSet);
+
+    SmartDashboard.putNumber("encoder remaining valueFL", RobotContainer.driveTrain.motorFL.encoderRemainingValue);
+    SmartDashboard.putNumber("encoder remaining valueFR", RobotContainer.driveTrain.motorFR.encoderRemainingValue);
+    SmartDashboard.putNumber("encoder remaining valueRL", RobotContainer.driveTrain.motorRL.encoderRemainingValue);
+    SmartDashboard.putNumber("encoder remaining valueRR", RobotContainer.driveTrain.motorRR.encoderRemainingValue);
+
+    SmartDashboard.putNumber("turnPowerRatio FL", RobotContainer.driveTrain.motorFL.turnPowerRatio);
+
     SmartDashboard.putNumber("Left Joystick X", RobotContainer.driverJoy.getRawAxis(0));
-    SmartDashboard.putNumber("Left Joystick Y", RobotContainer.driverJoy.getRawAxis(1));
-    SmartDashboard.putNumber("Right Joystick X", RobotContainer.driverJoy.getRawAxis(4));
-
+     SmartDashboard.putNumber("Left Joystick Y", RobotContainer.driverJoy.getRawAxis(1));
+     SmartDashboard.putNumber("Right Joystick X", RobotContainer.driverJoy.getRawAxis(4));  
 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
