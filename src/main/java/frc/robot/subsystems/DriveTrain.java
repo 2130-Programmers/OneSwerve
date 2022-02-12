@@ -25,6 +25,10 @@ public class DriveTrain extends SubsystemBase {
   public SwerveMotor motorRL;
   public SwerveMotor motorRR;
 
+  public double leftXOutput = 0;
+  public double leftYOutput = 0;
+  public double rightXOutput = 0;
+
   //creating a variable which will be our angle
   public double FLAngle = 0;
   public double FRAngle = 0;
@@ -63,6 +67,22 @@ public class DriveTrain extends SubsystemBase {
   public void moveSwerveAxis(double leftX, double leftY, double rightX)
   {
     double swivel = -rightX * (l / r);
+
+    if (Math.abs(leftX) < .05) {
+      leftXOutput = 0;
+    } else {
+      leftXOutput = leftX;
+    }
+    if (Math.abs(leftY) < .05) {
+      leftYOutput = 0;
+    } else {
+      leftYOutput = leftY;
+    }
+    if (Math.abs(rightX) < .05) {
+      rightXOutput = 0;
+    } else {
+      rightXOutput = rightX;
+    }
     // a b c and d are the sides of the robot, wheels are made from the combination of sides
     /**
      * this is the beginning of the vector based math, and in short we are calculating where each side wants to be
@@ -70,10 +90,10 @@ public class DriveTrain extends SubsystemBase {
      * swerve unit is unit BC, because in a triangle made from the robots frames, the two sides are b and c.
      * This part is simply saying where each side wants to go by themselves.
      */
-    double a = leftX-swivel;
-    double b = leftX+swivel;
-    double c = leftY-swivel;
-    double d = leftY+swivel;
+    double a = leftXOutput -swivel;
+    double b = leftXOutput +swivel;
+    double c = leftYOutput -swivel;
+    double d = leftYOutput +swivel;
     //calculates the speed based on *vector math*
     /**
      */

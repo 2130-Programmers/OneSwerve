@@ -38,8 +38,29 @@ public class Robot extends TimedRobot {
    * <p>This runs after the mode specific periodic functions, but before LiveWindow and
    * SmartDashboard integrated updating.
    */
+
+   double rawEncodedPosition;
+   double encodedPosition;
   @Override
   public void robotPeriodic() {
+
+    rawEncodedPosition = RobotContainer.driveTrain.motorFL.encoderMotor.getSelectedSensorPosition(0);
+
+    if (rawEncodedPosition >= 0)
+    {
+      encodedPosition = RobotContainer.driveTrain.motorFL.encoderMotor.getSelectedSensorPosition(0) % 4096;
+    }
+      else
+    {
+      encodedPosition = (RobotContainer.driveTrain.motorFL.encoderMotor.getSelectedSensorPosition(0) % 4096) + 4096;
+    }
+
+    SmartDashboard.putNumber("encodedPosition", encodedPosition);
+    
+    SmartDashboard.putNumber("FLRAWFKINVALUE", RobotContainer.driveTrain.motorFL.encoderMotor.getSelectedSensorPosition(0) % 4096 + 4096);
+    SmartDashboard.putNumber("FRRAWFKINVALUE", RobotContainer.driveTrain.motorFR.encoderMotor.getSelectedSensorPosition(0) % 4096 + 4096);
+    SmartDashboard.putNumber("RLRAWFKINVALUE", RobotContainer.driveTrain.motorRL.encoderMotor.getSelectedSensorPosition(0) % 4096 + 4096);
+    SmartDashboard.putNumber("RRRAWFKINVALUE", RobotContainer.driveTrain.motorRR.encoderMotor.getSelectedSensorPosition(0) % 4096 + 4096);
 
     SmartDashboard.putNumber("FL edited encoder value", RobotContainer.driveTrain.motorFL.encoderPosition);
     SmartDashboard.putNumber("FR edited encoder value", RobotContainer.driveTrain.motorFR.encoderPosition);
