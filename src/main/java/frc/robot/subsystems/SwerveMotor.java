@@ -43,6 +43,7 @@ public class SwerveMotor extends SubsystemBase {
   public double ticksInRotation = Constants.EncoderTicksInRevolution; //changed from quadrent to revolution
   public double ticksInHalf = Constants.EncoderTicksInHalf;
   public double ticksInThreeQuarters = Constants.EncoderticksInThreeQuarters;
+  public double rotationSpeedCap = Constants.RotationSpeedCap;
   
   //We need to find a good way to make this worj with SparkMaxs
   /**sets min and max output
@@ -113,15 +114,15 @@ public class SwerveMotor extends SubsystemBase {
    */
   public void pointToTarget(double target)
   {
-    rawEncoderPosition = encoderMotor.getSelectedSensorPosition();
-    
+    rawEncoderPosition = encoderMotor.getSelectedSensorPosition(0);
+
     if (rawEncoderPosition >= 0)
     {
-      encoderPosition = encoderMotor.getSelectedSensorPosition() % ticksInRotation;
+      encoderPosition = encoderMotor.getSelectedSensorPosition(0) % ticksInRotation;
     }
       else
     {
-      encoderPosition = (encoderMotor.getSelectedSensorPosition() % ticksInRotation) + 4096;
+      encoderPosition = (encoderMotor.getSelectedSensorPosition(0) % ticksInRotation) + 4096;
     }
     //double flip = 0;
     double currentposition = currentEncoderCount();
@@ -171,24 +172,18 @@ sDencoderRemainingValue = encoderRemainingValue;
       //goes towards the point, if it is outside the large error it goes fast, if it is
       //in that range it goes at the slow speed untill smaller than the small error
 
-      turnPowerRatio = .000004 * Math.pow(encoderRemainingValue, 2) + .00002 * encoderRemainingValue +.0202;
+      //turnPowerRatio = .000004 * Math.pow(encoderRemainingValue, 2) + .00002 * encoderRemainingValue +.0202;
+      double turnPowerRatio = (((rotationSpeedCap) / 500) * Math.abs(encoderRemainingValue));
 
       if (Math.abs(encoderRemainingValue) > 500) {
-        moveMotor(.3 * -directionMultiplier);
-      }else {
-        moveMotor(turnPowerRatio * .3 * -directionMultiplier);
-      }
-      /*
-      if(Math.abs(encoderRemainingValue) > Constants.LargeSwerveRotationError)
-      {
+        moveMotor(rotationSpeedCap * -directionMultiplier);
+      }else if (Math.abs(encoderRemainingValue) < 500 && Math.abs(encoderRemainingValue) > 40) {
         moveMotor(turnPowerRatio * -directionMultiplier);
-      }
-      else
-      {
+      } else  {
         stopMotors();
-        testBoolean = false;
       }
-      */
+      
+      
     }
   }
 
@@ -225,7 +220,7 @@ sDencoderRemainingValue = encoderRemainingValue;
       revamp = (speed/Math.abs(speed));
     }
 
-    driveMotor.set(ControlMode.PercentOutput, revamp * .5);
+    driveMotor.set(ControlMode.PercentOutput, revamp * .7);
 
       /**I don't understand why I did this, *REWORK*
        * |-7+1|+1 = 7 but it would be the same without the +1's
@@ -235,7 +230,7 @@ sDencoderRemainingValue = encoderRemainingValue;
       if (angle < 0)
       {
         pointSet = ticksInRotation + (angle * ticksInHalf);
-      } else if (angle > 0)
+      } else if (angle >= 0)
       {
         pointSet = angle * ticksInHalf;
       } else
@@ -243,7 +238,7 @@ sDencoderRemainingValue = encoderRemainingValue;
         stopMotors();
         //pointSet = 0;
       }
-  // POINTSETMOD is not being used, it swaps the polarity of the desired target and makes it count up from the botton isntead of the top
+  // POINTSETMOD is not being used, it swaps the polarity of the desired target and makes it count up from the bottom isntead of the top
       pointSetMod = pointSet;
       pointSetMod -= ticksInHalf;
 

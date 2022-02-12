@@ -21,7 +21,6 @@ public final class Constants {
 
     public static int TurretSpeedMaxOutput = 1;
     public static int TurretSpeedMinOutput = -1;
-    public static boolean isTommyGay = true;
 
     public static double StickError = 0.05;
 
@@ -30,8 +29,9 @@ public final class Constants {
     public static int EncoderTicksInHalf = 2048;
     public static int EncoderticksInThreeQuarters = 3072;
 
-    public static double LargeSwerveRotationError = 40; // change this to help jitter
+    public static double LargeSwerveRotationError = 200; // change this to help jitter
     public static double SmallSwerveRotationError = 40; //Hard stop value
+    public static double RotationSpeedCap = .3;
     public static double FastSwerveRotationSpeed = .2; //.4
     public static double SlowSwerveRotationSpeed = .1;  //.05
 
